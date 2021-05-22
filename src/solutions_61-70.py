@@ -26,7 +26,25 @@ def solution_66(args):
     return args
 
 def solution_67(args):
-    return args
+    df = pd.read_csv("C:/Users/joeco/Python/Project-Euler-Solutions/data/p067_triangle.csv")
+    triangle = df['a'].tolist()
+    d = [[0]]*len(triangle)
+    for i in range(len(triangle)):
+        data = str(triangle[i])
+        new_list = [int(x) for x in data.split(" ")]
+        d[i] = new_list
+    
+    rows = len(d)
+    max_path = d
+    max_path[-1] = d[-1]
+    for i in range(2,rows+1):
+        row = rows-i
+        for j in range(len(d[row])):
+            row_below = max_path[row+1]
+            max_val = max(row_below[j],row_below[j+1])
+            max_path[row][j] = d[row][j] + max_val
+
+    return max_path[0][0]
 
 def solution_68(args):
     return args
