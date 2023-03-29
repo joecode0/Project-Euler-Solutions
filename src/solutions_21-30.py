@@ -172,7 +172,7 @@ def solution_25(args):
     return i-1
 
 def solution_26(args):
-    from decimal import *
+    from decimal import Decimal, getcontext
     getcontext().prec = 10000
     test = str(str(1/7).split("0.")[1])
 
@@ -253,6 +253,7 @@ def solution_27(args):
     return (-61 * 971)
 
 def test_prime(x, known_primes):
+    from math import sqrt
     if x < 2:
         return False
     max_val_to_check = int(sqrt(x))+1
