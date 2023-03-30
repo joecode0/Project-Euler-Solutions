@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np 
 import sys
 
+from math import sqrt, floor, gcd, factorial, log10
+
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -258,68 +260,21 @@ def decimal_to_binary(val,powers_of_two):
 
 def solution_37(args):
     # Problem 37: Truncatable primes
-    from math import sqrt
-
-    all_primes_main_loop = sorted(get_all_primes(10000000),reverse=True)
-    all_primes_testing = get_all_primes(10000000)
-    truncatable_left = []
-    for prime in all_primes_main_loop:
-        #print("Original Prime: {}".format(prime))
-        truncatable = True
-        truncatables = [prime]
-        i = 0
-        max_i = len(str(prime))-1
-        while i < max_i:
-            str_prime = truncate_left(prime)
-            prime = int(str_prime)
-            if str_prime[0] == "0":
-                i += 1
-                for j in range(1,len(str_prime)-1):
-                    if str_prime[j] == "0":
-                        i += 1
-            #print("{} gives {}".format(i,prime))
-            #print("i = {}: Testing prime {}".format(i,prime))
-            if test_prime(prime,all_primes_testing) == False:
-                #print("Not Prime")
-                truncatable = False
-                i += max_i
-            else:
-                #print("Prime")
-                truncatables.append(prime)
-            i += 1
-        if truncatable:
-            truncatable_left.extend(truncatables)
-        #time.sleep(10)
-
-    #print(len(truncatable_left))
-    truncatable_left = list(set(truncatable_left))
-    #print(len(truncatable_left))
-    #print(sorted(truncatable_left))
-
-    truncatable_both = []
-    for prime in truncatable_left:
-        #print("Original Prime: {}".format(prime))
-        truncatable = True
-        i = 0
-        max_i = len(str(prime))-1
-        while i < max_i:
-            str_prime = truncate_right(prime)
-            prime = int(str_prime)
-            #print("Testing: {}".format(prime))
-            if test_prime(prime,all_primes_testing) == False:
-                #print("Not Prime!")
-                truncatable = False
-                i += max_i
-            #else:
-                #print("Prime!")
-            i += 1
-        if truncatable:
-            truncatable_both.append(prime)
-    #print(len(truncatable_both))
-    truncatable_both = list(set(truncatable_both))
-    #print(len(truncatable_both))
-    #print(truncatable_both)
-    return sum(truncatable_both)
+    limit = 1000000
+    primes = get_all_primes(limit)
+    logger.debug("Found {} primes".format(len(primes)))
+    trunc_primes = []
+    i = 4
+    while len(trunc_primes) < 11:
+        if is_truncatable_prime(primes[i], primes):
+            trunc_primes.append(primes[i])
+            logger.debug("Found truncatable prime: {}".format(primes[i]))
+        i += 1
+        if i >= len(primes) and len(trunc_primes) < 11:
+            logger.debug("Limit reached, increasing to {}".format(limit*10))
+            limit *= 10
+            primes = get_all_primes(limit)
+    return sum(trunc_primes)
 
 def test_prime(x, known_primes):
     if x < 2:
@@ -343,11 +298,14 @@ def get_all_primes(max_val):
                 primes_list.append(i)
     return primes_list
 
-def truncate_left(val):
-    return str(val)[1:]
-
-def truncate_right(val):
-    return str(val)[0:-1]
+def is_truncatable_prime(prime, primes):
+    if prime < 10:
+        return False
+    prime_str = str(prime)
+    for i in range(1, len(prime_str)):
+        if int(prime_str[i:]) not in primes or int(prime_str[:i]) not in primes:
+            return False
+    return True
 
 def solution_38(args):
     # Problem 38: Pandigital numbers
@@ -453,7 +411,7 @@ def solution_40(args):
     d_100000 = int(string[99999])
     d_1000000 = int(string[999999])
     product = d_1*d_10*d_100*d_1000*d_10000*d_100000*d_1000000
-    return product)
+    return product
 
 def main(argument_list):
     if len(argument_list) >= 2:
