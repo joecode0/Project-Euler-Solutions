@@ -51,7 +51,21 @@ def get_all_pandigital_primes(max_val,primes_list):
     return pandigitals
 
 def solution_42(args):
-    return args
+    import itertools
+    pandigital_sum = 0
+    for p in itertools.permutations('0123456789'):
+        number = ''.join(p)
+        if has_divisibility_property(number):
+            pandigital_sum += int(number)
+            logger.debug("Number Found: {}, Pandigital sum so far: {}".format(number,pandigital_sum))
+    return pandigital_sum
+
+def has_divisibility_property(number):
+    divisors = [2, 3, 5, 7, 11, 13, 17]
+    for i, divisor in enumerate(divisors):
+        if int(number[i+1:i+4]) % divisor != 0:
+            return False
+    return True
 
 def solution_43(args):
     return args
