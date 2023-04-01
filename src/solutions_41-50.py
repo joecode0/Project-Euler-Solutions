@@ -68,7 +68,29 @@ def has_divisibility_property(number):
     return True
 
 def solution_43(args):
-    return args
+    n = 1
+    found = False
+    
+    while not found:
+        n += 1
+        pn = pentagonal_number(n)
+        
+        for m in range(n - 1, 0, -1):
+            pm = pentagonal_number(m)
+            if is_pentagonal(pn + pm):
+                logger.debug("Found Pentagonal Sum: {} + {} = {}".format(pn, pm, pn + pm))
+                if is_pentagonal(abs(pn - pm)):
+                    found = True
+                    break
+                
+    return abs(pn - pm)
+
+def pentagonal_number(n):
+    return n * (3 * n - 1) // 2
+
+def is_pentagonal(number):
+    test_n = ((24 * number + 1) ** 0.5 + 1) / 6
+    return test_n == int(test_n)
 
 def solution_44(args):
     return args
