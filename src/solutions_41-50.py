@@ -93,7 +93,17 @@ def is_pentagonal(number):
     return test_n == int(test_n)
 
 def solution_44(args):
-    return args
+    # All hexagonal numbers are triangular numbers so we can generate hexagonal numbers and test if they are pentagonal
+    n = 144 # because we know we need a result greater than the 143rd hexagonal number
+    while True:
+        hexagonal_number = n * (2 * n - 1)
+        if is_pentagonal(hexagonal_number):
+            return hexagonal_number
+        n += 1
+
+def is_pentagonal(number):
+    test_n = ((24 * number + 1) ** 0.5 + 1) / 6
+    return test_n == int(test_n)
 
 def solution_45(args):
     return args
