@@ -106,7 +106,23 @@ def is_pentagonal(number):
     return test_n == int(test_n)
 
 def solution_45(args):
-    return args
+    primes = get_all_primes(10000)
+    logger.debug("Generated {} primes".format(len(primes)))
+
+    n = 9
+    while True:
+        if n not in primes and check_goldbach_conjecture(n,primes):
+            return n
+        n += 2
+
+def check_goldbach_conjecture(composite, primes):
+    for prime in primes:
+        if prime > composite:
+            break
+        remainder = composite - prime
+        if ((remainder / 2) ** 0.5).is_integer():
+            return False
+    return True
 
 def solution_46(args):
     return args
