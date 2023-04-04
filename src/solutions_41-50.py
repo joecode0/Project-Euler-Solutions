@@ -51,6 +51,9 @@ def get_all_pandigital_primes(max_val,primes_list):
     return pandigitals
 
 def solution_42(args):
+    return
+
+def solution_43(args):
     import itertools
     pandigital_sum = 0
     for p in itertools.permutations('0123456789'):
@@ -67,7 +70,7 @@ def has_divisibility_property(number):
             return False
     return True
 
-def solution_43(args):
+def solution_44(args):
     n = 1
     found = False
     
@@ -92,7 +95,7 @@ def is_pentagonal(number):
     test_n = ((24 * number + 1) ** 0.5 + 1) / 6
     return test_n == int(test_n)
 
-def solution_44(args):
+def solution_45(args):
     # All hexagonal numbers are triangular numbers so we can generate hexagonal numbers and test if they are pentagonal
     n = 144 # because we know we need a result greater than the 143rd hexagonal number
     while True:
@@ -105,7 +108,7 @@ def is_pentagonal(number):
     test_n = ((24 * number + 1) ** 0.5 + 1) / 6
     return test_n == int(test_n)
 
-def solution_45(args):
+def solution_46(args):
     primes = get_all_primes(10000)
     logger.debug("Generated {} primes".format(len(primes)))
 
@@ -123,9 +126,6 @@ def check_goldbach_conjecture(composite, primes):
         if ((remainder / 2) ** 0.5).is_integer():
             return False
     return True
-
-def solution_46(args):
-    return args
 
 def solution_47(args):
     return args
