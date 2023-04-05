@@ -128,7 +128,31 @@ def check_goldbach_conjecture(composite, primes):
     return True
 
 def solution_47(args):
-    return args
+    # Distinct prime factors
+    primes = get_all_primes(1000000)
+    logger.debug("Generated {} primes".format(len(primes)))
+    consecutive_numbers = []
+    num = 2
+    while len(consecutive_numbers) < 4:
+        if count_distinct_prime_factors(num,primes) == 4:
+            consecutive_numbers.append(num)
+        else:
+            consecutive_numbers = []
+        num += 1
+    logger.debug("4 Consecutive numbers Found: {}".format(consecutive_numbers))
+    return consecutive_numbers[0]
+
+def count_distinct_prime_factors(number, primes):
+    factors = set()
+    i = 0
+    while number > 1:
+        factor = primes[i]
+        if number % factor == 0:
+            factors.add(factor)
+            number //= factor
+        else:
+            i += 1
+    return len(factors)
 
 def solution_48(args):
     return args
