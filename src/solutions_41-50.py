@@ -155,7 +155,12 @@ def count_distinct_prime_factors(number, primes):
     return len(factors)
 
 def solution_48(args):
-    return args
+    total = 0
+    modulo = 10 ** 10  # We only care about the last ten digits
+    for num in range(1, 1001):
+        power = pow(num, num, modulo)  # Calculate num^num mod modulo
+        total = (total + power) % modulo  # Add the power to the total, keeping the last ten digits
+    return total
 
 def solution_49(args):
     return args
