@@ -163,7 +163,25 @@ def solution_48(args):
     return total
 
 def solution_49(args):
-    return args
+    from itertools import permutations
+
+    valid_primes = [x for x in get_all_primes(10000) if x > 1000]
+
+    results = []
+    for prime in valid_primes:
+        if prime == 1487:  # Skip the given example
+            continue
+        prime_permutations = sorted(set(int(''.join(p)) for p in permutations(str(prime))))
+        prime_permutations = [p for p in prime_permutations if p in valid_primes]
+        for i, first_prime in enumerate(prime_permutations[:-1]):
+            for second_prime in prime_permutations[i + 1:]:
+                diff = second_prime - first_prime
+                third_prime = second_prime + diff
+                if third_prime in prime_permutations:
+                    results.append(int(f"{first_prime}{second_prime}{third_prime}"))
+
+    return [x for x in list(set(results)) if str(x) != "148748178147"][0]
+
 
 def solution_50(args):
     return args
