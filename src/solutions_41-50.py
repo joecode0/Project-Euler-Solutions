@@ -184,7 +184,37 @@ def solution_49(args):
 
 
 def solution_50(args):
-    return args
+    valid_primes = get_all_primes(1000000)
+    logger.debug("Generated {} primes".format(len(valid_primes)))
+
+    limit = 1000000
+    longest_sequence_length = 0
+    prime_with_longest_sequence = 0
+
+    for i, start_prime in enumerate(valid_primes):
+        prime_sum = start_prime
+        sequence_length = 1
+        
+        # Check if it's possible to find a longer sequence within the limit
+        remaining_primes_sum = sum(valid_primes[i:i + longest_sequence_length + 1])
+        if remaining_primes_sum >= limit:
+            break
+        if start_prime > limit:
+            return prime_with_longest_sequence
+        
+        for end_prime in valid_primes[i + 1:]:
+            prime_sum += end_prime
+            sequence_length += 1
+
+            if prime_sum >= limit:
+                break
+
+            if (prime_sum in valid_primes) and sequence_length > longest_sequence_length:
+                longest_sequence_length = sequence_length
+                prime_with_longest_sequence = prime_sum
+                logger.debug("New longest sequence: {} ({} primes)".format(prime_with_longest_sequence, longest_sequence_length))
+
+    return prime_with_longest_sequence
 
 def main(argument_list):
     if len(argument_list) >= 2:
