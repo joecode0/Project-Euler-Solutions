@@ -45,7 +45,20 @@ def apply_mask(number, mask, digit):
     return int(''.join([str(digit) if m == '1' else n for n, m in zip(str(number), mask)]))
 
 def solution_52(args):
-    return args
+    n = 1
+    while n < 7:
+        start = 10 ** (n - 1)
+        end = (10 ** n) // 6
+        for number in range(start, end + 1):
+            if test_multiple_same_digits(number, 2) and test_multiple_same_digits(number, 3) and test_multiple_same_digits(number, 4) and test_multiple_same_digits(number, 5) and test_multiple_same_digits(number, 6):
+                return number
+        n += 1
+    return 0
+
+def test_multiple_same_digits(number, n):
+    original_digits = sorted(str(number))
+    multiplied_digits = sorted(str(number * n))
+    return original_digits == multiplied_digits
 
 def solution_53(args):
     return args
