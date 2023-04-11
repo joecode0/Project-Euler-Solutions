@@ -61,7 +61,32 @@ def test_multiple_same_digits(number, n):
     return original_digits == multiplied_digits
 
 def solution_53(args):
-    return args
+    total_combinations = 0
+    for n in range(23,101):
+        for r in range(2,n//2+1):
+            if (combinations(n,r) > 1000000):
+                #print("n: {}, r: {}".format(n,r))
+                total_combinations += n-2*r+1
+                break # No need to check any more r values for this n
+    return total_combinations
+
+def factorial(n):
+    result = 1
+    for i in range(1, n + 1):
+        result *= i
+    return result
+
+def combinations(n, r):
+    if r > n or r < 0 or n < 0:
+        return 0
+    r = min(r, n - r)  # Take advantage of symmetry: C(n, r) = C(n, n-r)
+    numer = 1
+    denom = 1
+    for i in range(1, r + 1):
+        numer *= n
+        denom *= i
+        n -= 1
+    return numer // denom
 
 def solution_54(args):
     return args
