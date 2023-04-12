@@ -89,7 +89,203 @@ def combinations(n, r):
     return numer // denom
 
 def solution_54(args):
-    return args
+    # Process poker file input
+    poker_file = open("data/p054_poker.txt", "r")
+
+    # Loop through each line in the file
+    player_1_wins = 0
+    player_2_wins = 0
+    i = 0
+    for line in poker_file:
+        logger.debug("Processing line: {}".format(line))
+        # Split the line into two hands
+        all_cards = line.split(" ")
+        hand_1 = all_cards[0:5]
+        hand_2 = all_cards[5:10]
+        # Find the best hand for each player
+        hand_1_rank, remaining_hand_1 = find_best_hand_rank(hand_1)
+        hand_2_rank, remaining_hand_2 = find_best_hand_rank(hand_2)
+        logger.debug("Player 1 hand rank: {}".format(hand_1_rank))
+        logger.debug("Player 2 hand rank: {}".format(hand_2_rank))
+        # Compare the hands
+        if hand_1_rank > hand_2_rank:
+            logger.debug("Player 1 wins")
+            player_1_wins += 1
+        elif hand_1_rank < hand_2_rank:
+            logger.debug("Player 2 wins")
+            player_2_wins += 1
+        else:
+            # If the hands are still the same rank, recursively compare the highest cards
+            logger.debug("Hands are the same rank, comparing highest cards")
+            while len(remaining_hand_1) > 0:
+                hand_1_highest_card_score, remaining_hand_1 = find_highest_card(remaining_hand_1)
+                hand_2_highest_card_score, remaining_hand_2 = find_highest_card(remaining_hand_2)
+                logger.debug("Player 1 highest card: {}".format(hand_1_highest_card_score))
+                logger.debug("Player 2 highest card: {}".format(hand_2_highest_card_score))
+                if hand_1_highest_card_score > hand_2_highest_card_score:
+                    player_1_wins += 1
+                    logger.debug("Player 1 wins with highest card: {}".format(hand_1_highest_card_score))
+                    break
+                elif hand_1_highest_card_score < hand_2_highest_card_score:
+                    player_2_wins += 1
+                    logger.debug("Player 2 wins with highest card: {}".format(hand_2_highest_card_score))
+                    break
+                else:
+                    # The highest cards are the same, so just go to next highest card
+                    logger.debug("Highest cards are the same ({} and {}), comparing next highest cards".format(hand_1_highest_card_score, hand_2_highest_card_score))
+                    continue
+        logger.debug("")
+        i += 1
+        if i > 4:
+            break
+    return player_1_wins
+
+def find_best_hand_rank(hand):
+    # Find the best hand rank by checking each hand type in order
+    remaining_hand = find_royal_flush(hand)
+    if remaining_hand != None: return 10, remaining_hand
+    remaining_hand = find_straight_flush(hand)
+    if remaining_hand != None: return 9, remaining_hand
+    remaining_hand = find_n_of_a_kind(hand, 4)
+    if remaining_hand != None: return 8, remaining_hand
+    remaining_hand = find_full_house(hand)
+    if remaining_hand != None: return 7, remaining_hand
+    remaining_hand = find_flush(hand)
+    if remaining_hand != None: return 6, remaining_hand
+    remaining_hand = find_straight(hand)
+    if remaining_hand != None: return 5, remaining_hand
+    remaining_hand = find_n_of_a_kind(hand, 3)
+    if remaining_hand != None: return 4, remaining_hand
+    remaining_hand = find_two_pair(hand)
+    if remaining_hand != None: return 3, remaining_hand
+    remaining_hand = find_n_of_a_kind(hand, 2)
+    if remaining_hand != None: return 2, remaining_hand
+    return 1, hand
+
+def find_royal_flush(hand):
+    # Find the royal flush
+    # Check for a straight flush
+    remaining_hand = find_straight_flush(hand)
+    if remaining_hand != None:
+        # Check that the highest card is an ace
+        if remaining_hand[0][0] == "A":
+            return remaining_hand
+    return None
+
+def find_straight_flush(hand):
+    # Find the straight flush
+    # Check for a straight
+    remaining_hand = find_straight(hand)
+    if remaining_hand != None:
+        # Check for a flush
+        remaining_hand = find_flush(remaining_hand)
+        if remaining_hand != None:
+            return remaining_hand
+    return None
+
+def find_full_house(hand):
+    # Find the full house
+    # Check for three of a kind
+    remaining_hand = find_n_of_a_kind(hand, 3)
+    if remaining_hand != None:
+        # Check for a pair
+        remaining_hand = find_n_of_a_kind(remaining_hand, 2)
+        if remaining_hand != None:
+            return remaining_hand
+    return None
+
+def find_flush(hand):
+    # Find the flush
+    # Check if all suits are the same
+    if hand[0][1] == hand[1][1] == hand[2][1] == hand[3][1] == hand[4][1]:
+        return hand
+    return None
+
+def find_straight(hand):
+    # Find the straight
+    # Create a dictionary to map card values to integers
+    card_value_dict = {"A": 14, "K": 13, "Q": 12, "J": 11, "T": 10, "9": 9, "8": 8, "7": 7, "6": 6, "5": 5, "4": 4, "3": 3, "2": 2}
+    # Sort the hand by value (lowest to highest)
+    sorted_hand = sorted(hand, key=lambda card: card_value_dict.get(card[0]))
+    # Check if the cards are consecutive
+    if card_value_dict.get(sorted_hand[0][0]) + 1 == card_value_dict.get(sorted_hand[1][0]) and \
+            card_value_dict.get(sorted_hand[1][0]) + 1 == card_value_dict.get(sorted_hand[2][0]) and \
+            card_value_dict.get(sorted_hand[2][0]) + 1 == card_value_dict.get(sorted_hand[3][0]) and \
+            card_value_dict.get(sorted_hand[3][0]) + 1 == card_value_dict.get(sorted_hand[4][0]):
+        return sorted_hand
+    # Also check if A is last card, then test if others are 2,3,4,5
+    if sorted_hand[4][0] == "A":
+        if card_value_dict.get(sorted_hand[0][0]) == 2 and \
+                card_value_dict.get(sorted_hand[1][0]) == 3 and \
+                card_value_dict.get(sorted_hand[2][0]) == 4 and \
+                card_value_dict.get(sorted_hand[3][0]) == 5:
+            return sorted_hand
+    return None
+
+def find_two_pair(hand):
+    # Find the two pair
+    # Check for a pair
+    remaining_hand = find_n_of_a_kind(hand, 2)
+    if remaining_hand != None:
+        # Check for another pair
+        remaining_hand = find_n_of_a_kind(remaining_hand, 2)
+        if remaining_hand != None:
+            return remaining_hand
+    return None
+
+def find_n_of_a_kind(hand, n):
+    # Find the n of a kind
+    # Create a dictionary to map card values to integers
+    card_value_dict = {"A": 14, "K": 13, "Q": 12, "J": 11, "T": 10, "9": 9, "8": 8, "7": 7, "6": 6, "5": 5, "4": 4, "3": 3, "2": 2}
+    # Sort the hand by value (lowest to highest)
+    sorted_hand = sorted(hand, key=lambda card: card_value_dict.get(card[0]))
+    # Check if there are n cards of the same value for each value of n
+    if len(sorted_hand) == 5:
+        if n == 4:
+            if sorted_hand[0][0] == sorted_hand[3][0]:
+                return [x for x in sorted_hand if x[0] != sorted_hand[0][0]]
+            elif sorted_hand[1][0] == sorted_hand[4][0]:
+                return [x for x in sorted_hand if x[0] != sorted_hand[1][0]]
+        elif n == 3:
+            if sorted_hand[0][0] == sorted_hand[2][0]:
+                return [x for x in sorted_hand if x[0] != sorted_hand[0][0]]
+            elif sorted_hand[1][0] == sorted_hand[3][0]:
+                return [x for x in sorted_hand if x[0] != sorted_hand[1][0]]
+            elif sorted_hand[2][0] == sorted_hand[4][0]:
+                return [x for x in sorted_hand if x[0] != sorted_hand[2][0]]
+        elif n == 2:
+            if sorted_hand[0][0] == sorted_hand[1][0]:
+                return [x for x in sorted_hand if x[0] != sorted_hand[0][0]]
+            elif sorted_hand[1][0] == sorted_hand[2][0]:
+                return [x for x in sorted_hand if x[0] != sorted_hand[1][0]]
+            elif sorted_hand[2][0] == sorted_hand[3][0]:
+                return [x for x in sorted_hand if x[0] != sorted_hand[2][0]]
+            elif sorted_hand[3][0] == sorted_hand[4][0]:
+                return [x for x in sorted_hand if x[0] != sorted_hand[3][0]]
+    elif len(sorted_hand) == 3 or len(sorted_hand) == 2:
+        if n == 2:
+            if sorted_hand[0][0] == sorted_hand[1][0]:
+                return [x for x in sorted_hand if x[0] != sorted_hand[0][0]]
+            elif sorted_hand[1][0] == sorted_hand[2][0]:
+                return [x for x in sorted_hand if x[0] != sorted_hand[1][0]]
+    return None
+
+def find_pair(hand):
+    # Find the pair
+    # Check for a pair
+    remaining_hand = find_n_of_a_kind(hand, 2)
+    if remaining_hand != None:
+        return remaining_hand
+    return None
+
+def find_highest_card(hand):
+    # Find the high card
+    # Create a dictionary to map card values to integers
+    card_value_dict = {"A": 14, "K": 13, "Q": 12, "J": 11, "T": 10, "9": 9, "8": 8, "7": 7, "6": 6, "5": 5, "4": 4, "3": 3, "2": 2}
+    # Sort the hand by value (lowest to highest)
+    sorted_hand = sorted(hand, key=lambda card: card_value_dict.get(card[0]))
+    return card_value_dict.get(sorted_hand[-1][0]), sorted_hand[:-1]
+
 
 def solution_55(args):
     return args
