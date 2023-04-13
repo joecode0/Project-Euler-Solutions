@@ -5,7 +5,7 @@ import sys
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 def solution_51(args):
     from itertools import product
@@ -97,7 +97,7 @@ def solution_54(args):
     player_2_wins = 0
     i = 0
     for line in poker_file:
-        logger.debug("Processing line: {}".format(line))
+        logger.debug("Processing line: {}".format(line.strip("\n")))
         # Split the line into two hands
         all_cards = line.split(" ")
         hand_1 = all_cards[0:5]
@@ -115,8 +115,91 @@ def solution_54(args):
             logger.debug("Player 2 wins")
             player_2_wins += 1
         else:
-            # If the hands are still the same rank, recursively compare the highest cards
-            logger.debug("Hands are the same rank, comparing highest cards")
+            # If the hands are the same rank, firstly compare what cards that gave them that rank
+            logger.debug("Hands are the same rank, comparing what gave them that rank")
+            hand_1_scoring_cards = [x for x in hand_1 if x not in remaining_hand_1]
+            hand_2_scoring_cards = [x for x in hand_2 if x not in remaining_hand_2]
+
+            if len(hand_1_scoring_cards) in [2, 3, 4]:
+                logger.debug("Both hands have pairs, 3 of a kind or 4 of a kind")
+                # If 2, both have pairs, if 3, both have 3 of a kind, if 4, both have 4 of a kind or two pairs
+                # In all cases, simply the highest card in all the scoring cards will determine the winner
+                hand_1_highest_card_score, _ = find_highest_card(hand_1_scoring_cards)
+                hand_2_highest_card_score, _ = find_highest_card(hand_2_scoring_cards)
+                logger.debug("Player 1 highest scoring card: {}".format(hand_1_highest_card_score))
+                logger.debug("Player 2 highest scoring card: {}".format(hand_2_highest_card_score))
+                if hand_1_highest_card_score > hand_2_highest_card_score:
+                    player_1_wins += 1
+                    logger.debug("Player 1 wins with highest scoring card: {}".format(hand_1_highest_card_score))
+                    continue
+                elif hand_1_highest_card_score < hand_2_highest_card_score:
+                    player_2_wins += 1
+                    logger.debug("Player 2 wins with highest scoring card: {}".format(hand_2_highest_card_score))
+                    continue
+                else:
+                    # If the highest scoring cards are the same, then the hands are the same
+                    logger.debug("Scoring hands are same, move to comparing other cards")
+            elif len(hand_1_scoring_cards) == 5:
+                logger.debug("Both hands have straight, flush, full house, straight flush or royal flush")
+                # If 5, both either have royal flush, straight flush, full house, straight or flush
+                # For royal flush, straight flush, straight and flush, the highest card in the hand will determine the winner
+                # For full house, the highest card in the 3 of a kind will determine the winner
+                    # If the highest card in the 3 of a kind is the same, the highest card in the pair will determine the winner
+                    # So check the full house scenario first, then can collectively solve the rest in one go
+                if hand_1_rank == 7:
+                    logger.debug("Both hands have full house")
+                    # Full house
+                    hand_1_highest_card_score, _ = find_highest_card(hand_1_scoring_cards[0:3])
+                    hand_2_highest_card_score, _ = find_highest_card(hand_2_scoring_cards[0:3])
+                    logger.debug("Player 1 highest scoring card: {}".format(hand_1_highest_card_score))
+                    logger.debug("Player 2 highest scoring card: {}".format(hand_2_highest_card_score))
+                    if hand_1_highest_card_score > hand_2_highest_card_score:
+                        player_1_wins += 1
+                        logger.debug("Player 1 wins with highest scoring card: {}".format(hand_1_highest_card_score))
+                        continue
+                    elif hand_1_highest_card_score < hand_2_highest_card_score:
+                        player_2_wins += 1
+                        logger.debug("Player 2 wins with highest scoring card: {}".format(hand_2_highest_card_score))
+                        continue
+                    else:
+                        # If same, then we need to compare the pairs
+                        logger.debug("Highest scoring cards are the same, comparing pairs")
+                        hand_1_highest_card_score, _ = find_highest_card(hand_1_scoring_cards[3:5])
+                        hand_2_highest_card_score, _ = find_highest_card(hand_2_scoring_cards[3:5])
+                        logger.debug("Player 1 highest scoring card: {}".format(hand_1_highest_card_score))
+                        logger.debug("Player 2 highest scoring card: {}".format(hand_2_highest_card_score))
+                        if hand_1_highest_card_score > hand_2_highest_card_score:
+                            player_1_wins += 1
+                            logger.debug("Player 1 wins with highest scoring card: {}".format(hand_1_highest_card_score))
+                            continue
+                        elif hand_1_highest_card_score < hand_2_highest_card_score:
+                            player_2_wins += 1
+                            logger.debug("Player 2 wins with highest scoring card: {}".format(hand_2_highest_card_score))
+                            continue
+                        else:
+                            # If the highest scoring cards are the same, then the hands are the same
+                            logger.debug("Scoring hands are same, move to comparing other cards")
+                else:
+                    logger.debug("Both hands have straight, flush, straight flush or royal flush")
+                    # Straight, flush, straight flush or royal flush
+                    hand_1_highest_card_score, _ = find_highest_card(hand_1_scoring_cards)
+                    hand_2_highest_card_score, _ = find_highest_card(hand_2_scoring_cards)
+                    logger.debug("Player 1 highest scoring card: {}".format(hand_1_highest_card_score))
+                    logger.debug("Player 2 highest scoring card: {}".format(hand_2_highest_card_score))
+                    if hand_1_highest_card_score > hand_2_highest_card_score:
+                        player_1_wins += 1
+                        logger.debug("Player 1 wins with highest scoring card: {}".format(hand_1_highest_card_score))
+                        continue
+                    elif hand_1_highest_card_score < hand_2_highest_card_score:
+                        player_2_wins += 1
+                        logger.debug("Player 2 wins with highest scoring card: {}".format(hand_2_highest_card_score))
+                        continue
+                    else:
+                        # If the highest scoring cards are the same, then the hands are the same
+                        logger.debug("Scoring hands are same, move to comparing other cards")
+
+            # If the hands are still the same at this point, recursively compare the remaining highest cards
+            logger.debug("Scoring hands are equal, comparing leftover highest cards")
             while len(remaining_hand_1) > 0:
                 hand_1_highest_card_score, remaining_hand_1 = find_highest_card(remaining_hand_1)
                 hand_2_highest_card_score, remaining_hand_2 = find_highest_card(remaining_hand_2)
@@ -134,10 +217,10 @@ def solution_54(args):
                     # The highest cards are the same, so just go to next highest card
                     logger.debug("Highest cards are the same ({} and {}), comparing next highest cards".format(hand_1_highest_card_score, hand_2_highest_card_score))
                     continue
-        logger.debug("")
+        #logger.info(i)
         i += 1
-        if i > 4:
-            break
+        # if i > 10:
+        #     break
     return player_1_wins
 
 def find_best_hand_rank(hand):
@@ -262,12 +345,16 @@ def find_n_of_a_kind(hand, n):
                 return [x for x in sorted_hand if x[0] != sorted_hand[2][0]]
             elif sorted_hand[3][0] == sorted_hand[4][0]:
                 return [x for x in sorted_hand if x[0] != sorted_hand[3][0]]
-    elif len(sorted_hand) == 3 or len(sorted_hand) == 2:
+    elif len(sorted_hand) == 3:
         if n == 2:
             if sorted_hand[0][0] == sorted_hand[1][0]:
                 return [x for x in sorted_hand if x[0] != sorted_hand[0][0]]
             elif sorted_hand[1][0] == sorted_hand[2][0]:
                 return [x for x in sorted_hand if x[0] != sorted_hand[1][0]]
+    elif len(sorted_hand) == 2:
+        if n == 2:
+            if sorted_hand[0][0] == sorted_hand[1][0]:
+                return [x for x in sorted_hand if x[0] != sorted_hand[0][0]]
     return None
 
 def find_pair(hand):
@@ -286,6 +373,10 @@ def find_highest_card(hand):
     sorted_hand = sorted(hand, key=lambda card: card_value_dict.get(card[0]))
     return card_value_dict.get(sorted_hand[-1][0]), sorted_hand[:-1]
 
+def get_card_value(card):
+    # Create a dictionary to map card values to integers
+    card_value_dict = {"A": 14, "K": 13, "Q": 12, "J": 11, "T": 10, "9": 9, "8": 8, "7": 7, "6": 6, "5": 5, "4": 4, "3": 3, "2": 2}
+    return card_value_dict.get(card[0])
 
 def solution_55(args):
     return args
