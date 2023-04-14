@@ -379,7 +379,32 @@ def get_card_value(card):
     return card_value_dict.get(card[0])
 
 def solution_55(args):
-    return args
+    total_count = 0
+    for i in range(1, 10000):
+        count = 0
+        num = i
+        while count < 50:
+            num = do_lychrel_step(num)
+            if test_num_palindrome(num):
+                break
+            count += 1
+        if count == 50:
+            total_count += 1
+    return total_count
+
+def do_lychrel_step(num):
+    # Do a Lychrel step
+    num_str = str(num)
+    num_str_reversed = num_str[::-1]
+    num_str_reversed_int = int(num_str_reversed)
+    return num + num_str_reversed_int
+
+def test_num_palindrome(num):
+    # Test if a number is a palindrome
+    num_str = str(num)
+    if num_str == num_str[::-1]:
+        return True
+    return False
 
 def solution_56(args):
     return args
