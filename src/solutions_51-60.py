@@ -407,7 +407,15 @@ def test_num_palindrome(num):
     return False
 
 def solution_56(args):
-    return args
+    max_sum = 0
+    for a in range(1, 100):
+        for b in range(1, 100):
+            current_sum = digital_sum(a ** b)
+            max_sum = max(max_sum, current_sum)
+    return max_sum
+
+def digital_sum(number):
+    return sum(map(int, str(number)))
 
 def solution_57(args):
     return args
