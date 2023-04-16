@@ -5,7 +5,7 @@ import sys
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 def solution_51(args):
     from itertools import product
@@ -418,7 +418,23 @@ def digital_sum(number):
     return sum(map(int, str(number)))
 
 def solution_57(args):
-    return args
+    from fractions import Fraction
+    # Create a list to hold the fractions
+    fractions = []
+    # Create the first fraction
+    fractions.append(Fraction(1, 2))
+    # Create the next 999 fractions
+    for i in range(1000):
+        # Create the next fraction
+        fractions.append(Fraction(1, 2 + fractions[-1]))
+    logger.debug([Fraction(1) + x for x in fractions[:5]])
+    # Count the number of fractions with a longer numerator than denominator
+    count = 0
+    for fraction in fractions:
+        fraction = Fraction(1) + fraction
+        if len(str(fraction.numerator)) > len(str(fraction.denominator)):
+            count += 1
+    return count
 
 def solution_58(args):
     return args
