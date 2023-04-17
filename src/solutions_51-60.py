@@ -437,7 +437,41 @@ def solution_57(args):
     return count
 
 def solution_58(args):
-    return args
+    # Spiral primes
+    # The diagonals of the spiral follow a clear pattern, so we can just loop through and compute these
+    current_val = 1
+    num_prime = 0
+    total_diags = 1
+    n = 1
+    for n in range(1,100000):
+        jump = n*2
+        for _ in range(4):
+            current_val += jump
+            if is_prime(current_val):
+                num_prime += 1
+        total_diags += 4
+        percent_prime = num_prime / total_diags
+        if n % 1000 == 0:
+            logger.debug("n: {}, percent prime: {}".format(n, percent_prime))
+        if percent_prime < 0.1:
+            return 2*n + 1
+    return 0
+
+def is_prime(n):
+    if n <= 1:
+        return False
+    if n <= 3:
+        return True
+    if n % 2 == 0 or n % 3 == 0:
+        return False
+
+    i = 5
+    while i * i <= n:
+        if n % i == 0 or n % (i + 2) == 0:
+            return False
+        i += 6
+
+    return True
 
 def solution_59(args):
     return args
