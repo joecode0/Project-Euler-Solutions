@@ -1,6 +1,8 @@
 import pandas as pd 
 import numpy as np 
 import sys
+import nltk
+from nltk.corpus import words
 
 import logging
 logging.basicConfig()
@@ -474,8 +476,59 @@ def is_prime(n):
     return True
 
 def solution_59(args):
-    return args
+    nltk.download('words')
 
+    # XOR decryption
+    # Read in the file
+    with open("data/p059_cipher.txt") as f:
+        cipher = [int(x) for x in f.read().split(",")]
+
+    # Create a list of all possible keys
+    key_list = []
+    for a in range(97, 123):
+        for b in range(97, 123):
+            for c in range(97, 123):
+                key_list.append([a, b, c])
+
+    # Loop through all possible keys
+    for key in key_list:
+        #logger.debug("Trying key: {}".format(key))
+
+        # Create a list to hold the decrypted message
+        decrypted_message = []
+
+        # Loop through the cipher
+        for i in range(len(cipher)):
+            # XOR the cipher with the key
+            decrypted_message.append(cipher[i] ^ key[i % 3])
+
+        # Check if the decrypted message is valid
+        message = "".join([chr(x) for x in decrypted_message])
+
+        # Tokenize the message into words
+        words_in_message = message.split()
+        if "the" in words_in_message:
+            logger.debug("Found a valid message with key: {}".format(key))
+            return sum(decrypted_message)
+
+    return 0
+
+def is_valid_message(words_in_message, min_word_length=3, threshold=0.5):
+    # Get the set of common English words
+    english_words = set(words.words())
+
+    # Count the number of valid English words in the message
+    valid_word_count = 0
+    for word in words_in_message:
+        if len(word) >= min_word_length and word in english_words:
+            valid_word_count += 1
+
+    # Calculate the ratio of valid English words to total words
+    valid_word_ratio = valid_word_count / len(words_in_message)
+
+    # Return True if the ratio is greater than or equal to the threshold
+    return valid_word_ratio >= threshold
+    
 def solution_60(args):
     return args
 
