@@ -530,7 +530,19 @@ def is_valid_message(words_in_message, min_word_length=3, threshold=0.5):
     return valid_word_ratio >= threshold
     
 def solution_60(args):
-    return args
+    from itertools import combinations
+    primes = sieve_of_eratosthenes(1000)
+    primes = set(primes)
+    pairs = set([(p1, p2) for p1, p2 in combinations(primes, 2) if concat_prime(p1, p2)])
+
+    for candidate in combinations(primes, 5):
+        if all((p1, p2) in pairs for p1, p2 in combinations(candidate, 2)):
+            return sum(candidate)
+                
+    return 0
+
+def concat_prime(p1, p2):
+    return is_prime(int(str(p1) + str(p2))) and is_prime(int(str(p2) + str(p1)))
 
 def main(argument_list):
     if len(argument_list) >= 2:
