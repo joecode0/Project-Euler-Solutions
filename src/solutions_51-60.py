@@ -530,15 +530,40 @@ def is_valid_message(words_in_message, min_word_length=3, threshold=0.5):
     return valid_word_ratio >= threshold
     
 def solution_60(args):
-    from itertools import combinations
-    primes = sieve_of_eratosthenes(1000)
+    primes = sieve_of_eratosthenes(10000)
     primes = set(primes)
-    pairs = set([(p1, p2) for p1, p2 in combinations(primes, 2) if concat_prime(p1, p2)])
 
-    for candidate in combinations(primes, 5):
-        if all((p1, p2) in pairs for p1, p2 in combinations(candidate, 2)):
-            return sum(candidate)
-                
+    # Create a set of remaining primes to use for dynamic programming
+    remaining_primes = primes.copy()
+    # Loop through all primes, try to find a set of 5 primes that are all concatenable, moving up
+    for p in primes:
+        # Generate all valid pairs dynamically
+        valid_pairs = set([(p, p2) for p2 in remaining_primes if concat_prime(p, p2)])
+        if len(valid_pairs) < 3:
+            remaining_primes.remove(p)
+        else:
+            # Take starter pair, find combinations for others, and remove as we go so we don't duplicate work
+            remaining_pairs_for_p1 = valid_pairs.copy()
+            while len(remaining_pairs_for_p1) > 0:
+                # Take the first pair
+                (p, p1) = remaining_pairs_for_p1.pop()
+                # So now we have a p and p1 that could be part of final set, so loop over possible p2s
+                remaining_pairs_for_p2 = remaining_pairs_for_p1.copy()
+                while len(remaining_pairs_for_p2) > 0:
+                    (p, p2) = remaining_pairs_for_p2.pop()
+                    if concat_prime(p1,p2):
+                        # Now we have valid p,p1,p2 that could be part of final set, so loop over possible p3s
+                        remaining_pairs_for_p3 = remaining_pairs_for_p2.copy()
+                        while len(remaining_pairs_for_p3) > 0:
+                            (p, p3) = remaining_pairs_for_p3.pop()
+                            if concat_prime(p1,p3) and concat_prime(p2,p3):
+                                # Now we have valid p,p1,p2,p3 that could be part of final set, so loop over possible p4s
+                                remaining_pairs_for_p4 = remaining_pairs_for_p3.copy()
+                                while len(remaining_pairs_for_p4) > 0:
+                                    (p, p4) = remaining_pairs_for_p4.pop()
+                                    if concat_prime(p1,p4) and concat_prime(p2,p4) and concat_prime(p3,p4):
+                                        # Now we have valid final set of 5 primes, return sum  
+                                        return p + p1 + p2 + p3 + p4          
     return 0
 
 def concat_prime(p1, p2):
